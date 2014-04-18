@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+
+var blobify = require('./')
+  , nopt = require('nopt')
+  , options
+
+options = {
+    'links': Boolean
+  , 'ignore': String
+  , 'help': Boolean
+}
+
+shorthands = {
+    'l': 'links'
+  , 'i': 'ignore'
+}
+
+var docs = (function() {/*
+  usage: fs-json [dirs|files]
+
+    Writes a json blob to stdout, with all the contents of all the files in it.
+
+    Options:
+
+    -l, --links:
+
+        follow symbolic links, recursively descending whatever the
+        link points to, as well.
+
+    -i, --ignore regex:
+
+        Paths matching this JavaScript regex are excluded
+*/}).toString()
+
+docs = docs.slice(docs.indexOf('\n') + 1, docs.lastIndexOf('*/'))
+
+var args = nopt(options, shorthands, process.argv)
+
+var options = {}
+  , files
+
+for(var key in args) {
+  if(key === 'argv') {
+    continue
+  }
+
+  options[key] = args[key]
+}
+
+if(options.help) {
+  process.stderr.write(docs)
+  process.exit(0)
+}
+
+files = args.argv.remain
+
+blobify(files, options, ready)
+
+function ready(err, data) {
+  if(err) {
+    return on_error(err)
+  }
+
+  process.stdout.write(JSON.stringify(data))
+}
+
+function on_error(error) {
+  process.stderr.write(error.toString())
+  process.stderr.write('\n')
+  process.exit(1)
+}
