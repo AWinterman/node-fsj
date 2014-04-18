@@ -1,6 +1,6 @@
 {
   "name": "fsj",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert a file tree to a json blob",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url" : "https://github.com/AWinterman/node-fsj.git"
+    "url": "https://github.com/AWinterman/node-fsj.git"
   },
   "preferGlobal": "true",
   "bin": {
