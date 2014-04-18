@@ -18,6 +18,11 @@
     "nopt": "^2.2.0",
     "findit": "^1.1.1"
   },
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/AWinterman/node-fsj.git"
+  },
+  "preferGlobal": "true",
   "bin": {
     "fsj": "fsj"
   }
