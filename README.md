@@ -1,17 +1,33 @@
-# Blob-Bog
+# fsj
 
-Point it at a dir, when it runs it will gather up all the stuffs in that
-directory into a json blob (recursively). 
+## Node
+```
+var fsj = require('fsj')
 
-Command line:
+fsj(entrypoints, options, ready)
+```
 
-`blob dir` outputs a json with all the contents of the directory. 
+- `entrypoints`: an array of system paths from which to start walking
+- `options.links`: Boolean follow symbolic links
+- `options.ignore`: RegExp for which files to ignore.
 
-`blob file file file file` reads the file into a json blob.
+returns an object mapping (file|dir)name to contents. Each time a directory is
+encountered, the value is an object with the same shape as the returned object.
 
-`blob dir -I javascript-regex` read all the files in the directory except for
-files matching the javascript regex.
+## Command line:
+```
+  usage: fs-json [dirs|files]
 
-`blob dir -O javascript-regex` include only those files matching the javascript
-regex.
+    Writes a json blob to stdout, with all the contents of all the files in it.
 
+    Options:
+
+    -l, --links:
+
+        follow symbolic links, recursively descending whatever the
+        link points to, as well.
+
+    -i, --ignore regex:
+
+        Paths matching this JavaScript regex are excluded
+```
