@@ -8,11 +8,14 @@ options = {
     'links': Boolean
   , 'ignore': String
   , 'help': Boolean
+  , 'file-transform': String
 }
 
 shorthands = {
-    'l': 'links'
-  , 'i': 'ignore'
+    'l': ['--links']
+  , 'i': ['--ignore']
+  , 'h': ['--help']
+  , 'f': ['--file-transform']
 }
 
 var docs = (function() {/*
@@ -30,11 +33,22 @@ var docs = (function() {/*
     -i, --ignore regex:
 
         Paths matching this JavaScript regex are excluded
+
+    -f, --file-transform
+
+        The path to an executable process that listens for file data on stdin
+        and writes some transform of the above to stdout. For example:
+
+          fsj -f $(grep ack)
+
+        will result in a json blob whose values are only those lines containing
+        "ack".
+
 */}).toString()
 
 docs = docs.slice(docs.indexOf('\n') + 1, docs.lastIndexOf('*/'))
 
-var args = nopt(options, shorthands, process.argv)
+var args = nopt(options, shorthands, process.argv, 2)
 
 var options = {}
   , files
@@ -44,28 +58,35 @@ for(var key in args) {
     continue
   }
 
-  options[key] = args[key]
-}
+  if(key === 'ignore') {
+    options[key] = new RegExp(args[key])
 
-if(options.help) {
-  process.stderr.write(docs)
-  process.exit(0)
+    continue
+  }
+
+  options[key] = args[key]
 }
 
 files = args.argv.remain
 
-blobify(files, options, ready)
+if(options.help || !files.length) {
+  process.stderr.write(docs)
+  process.exit(0)
+}
+
+blobify(files, {}, options, ready)
 
 function ready(err, data) {
+  console.error('done')
   if(err) {
     return on_error(err)
   }
 
   process.stdout.write(JSON.stringify(data))
+  process.exit(0)
 }
 
 function on_error(error) {
   process.stderr.write(error.toString())
-  process.stderr.write('\n')
   process.exit(1)
 }
