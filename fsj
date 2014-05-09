@@ -77,7 +77,6 @@ if(options.help || !files.length) {
 blobify(files, {}, options, ready)
 
 function ready(err, data) {
-  console.error('done')
   if(err) {
     return on_error(err)
   }

@@ -8,10 +8,6 @@ var spawn = require('child_process').spawn
 module.exports = blobify
 
 function blobify(entry_points, output, options, ready) {
-  if(entry_points.length) {
-    console.error(ready.toString())
-  }
-
   if(!entry_points.length) {
     ready(null, output)
 
