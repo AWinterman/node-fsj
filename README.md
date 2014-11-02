@@ -2,6 +2,7 @@
 
 ## Command line:
 
+```
 fsj(1)
 
 usage: fsj [files] [-lhf] [-d int] [-t exec] [-i regex]
@@ -70,6 +71,7 @@ usage: fsj [files] [-lhf] [-d int] [-t exec] [-i regex]
                 }
             }
 
+```
 
 ## Node
 ```
