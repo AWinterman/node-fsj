@@ -2,7 +2,9 @@
 
 ## Command line:
 
+```
 %s
+```
 
 ## Node
 ```
