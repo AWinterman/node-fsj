@@ -4,7 +4,8 @@
   "description": "Convert a file tree to a json blob",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "node -e \"util = require('util'); fs = require('fs'); var cli = fs.readFileSync('help.txt'), readme = fs.readFileSync('README.template.md', 'utf8'); process.stdout.write(util.format(readme, cli))\" > README.md"
   },
   "keywords": [
     "file",
@@ -17,7 +18,9 @@
   "dependencies": {
     "nopt": "^2.2.0",
     "findit": "^1.1.1",
-    "concat-stream": "^1.4.5"
+    "concat-stream": "^1.4.5",
+    "sentinal-stream": "^0.2.3",
+    "fifo-stream": "0.0.0"
   },
   "repository": {
     "type": "git",

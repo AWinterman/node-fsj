@@ -1,57 +1,33 @@
 #!/usr/bin/env node
 
 var blobify = require('./')
-  , nopt = require('nopt')
-  , options
+var nopt = require('nopt')
+var Fifo = require('fifo-stream')
+var path = require('path')
+var fs = require('fs')
+var options
 
-options = {
+opts = {
     'links': Boolean
   , 'ignore': String
   , 'help': Boolean
   , 'file-transform': String
+  , 'indent': Number
+  , 'flat': Boolean
 }
 
 shorthands = {
     'l': ['--links']
   , 'i': ['--ignore']
   , 'h': ['--help']
-  , 'f': ['--file-transform']
+  , 't': ['--file-transform']
+  , 'd': ['--indent']
+  , 'f': ['--flat']
 }
 
-var docs = (function() {/*
-  usage: fs-json [dirs|files]
-
-    Writes a json blob to stdout, with all the contents of all the files in it.
-
-    Options:
-
-    -l, --links:
-
-        follow symbolic links, recursively descending whatever the
-        link points to, as well.
-
-    -i, --ignore regex:
-
-        Paths matching this JavaScript regex are excluded
-
-    -f, --file-transform
-
-        The path to an executable process that listens for file data on stdin
-        and writes some transform of the above to stdout. For example:
-
-          fsj -f $(grep ack)
-
-        will result in a json blob whose values are only those lines containing
-        "ack".
-
-*/}).toString()
-
-docs = docs.slice(docs.indexOf('\n') + 1, docs.lastIndexOf('*/'))
-
-var args = nopt(options, shorthands, process.argv, 2)
-
+var args = nopt(opts, shorthands, process.argv, 2)
 var options = {}
-  , files
+var fifo = new Fifo(args.argv.remain)
 
 for(var key in args) {
   if(key === 'argv') {
@@ -67,21 +43,47 @@ for(var key in args) {
   options[key] = args[key]
 }
 
-files = args.argv.remain
+if(options.help) {
+  process.stderr.write(fs.readFileSync(path.join(__dirname, 'help.txt')))
 
-if(options.help || !files.length) {
-  process.stderr.write(docs)
-  process.exit(0)
+  process.exit(1)
 }
 
-blobify(files, {}, options, ready)
+if(!args.argv.remain.length) {
+  // then we need to do some magicking to get stdin
+  process.stdin.setEncoding('utf8');
+
+  var last_chunk
+
+  process.stdin.on('data', function(data) {
+    var str = data.toString()
+
+    if(last_chunk) {
+      str = last_chunk + str
+    }
+
+    var chunks = data.split(/\s+/)
+
+    last_chunk = chunks.slice(-1)
+
+    fifo.write(chunks.slice(0, -1))
+  })
+
+  process.stdin.on('end', function() {
+    if(last_chunk) {
+      fifo.write(last_chunk)
+    }
+  })
+}
+
+blobify(fifo, options, ready)
 
 function ready(err, data) {
   if(err) {
     return on_error(err)
   }
 
-  process.stdout.write(JSON.stringify(data))
+  process.stdout.write(JSON.stringify(data, null, options.indent))
   process.exit(0)
 }
 
