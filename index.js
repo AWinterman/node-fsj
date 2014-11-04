@@ -15,12 +15,13 @@ function blobify(entry_points, options, ready) {
     options = {}
   }
 
+  var ended
+  var inflight = 0
+
   entry_points.on('end', function() {
-    var keys = Object.keys(blob)
+    ended = true
 
-    ready(null, options.flat ? blob : nest(blob) )
-
-    return
+    maybe_done()
   })
 
   entry_points.on('data', function(data) {
@@ -30,12 +31,30 @@ function blobify(entry_points, options, ready) {
 
     data = data.toString()
 
+    inflight++
     blob_one(data, options, done_one)
   })
 
   function done_one(err, data) {
     if(err) {
       return ready(err)
+    }
+
+    inflight--
+    maybe_done()
+  }
+
+  function maybe_done() {
+    var result
+
+    if(Object.keys(blob).length) {
+      result = options.flat ? blob : nest(blob)
+    } else {
+      result = {}
+    }
+
+    if(!inflight && ended) {
+      ready(null, result)
     }
   }
 }
