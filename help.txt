@@ -50,7 +50,7 @@ usage: fsj [files] [-lhf] [-d int] [-t exec] [-i regex]
                 'my-proj/chpater2/body.txt': 'text'
             }
 
-        With flat set to false, it owuld be:
+        With flat set to false, it would be:
 
             {
                 'my-proj': {
